@@ -16,6 +16,8 @@ $ node ./dist/transpiler.js '<Code>'
 
 ## Documentation
 
+! Numbers can be written with _ between digits to give more readability.
+! Decimal/Floating point numbers are currently not supported. (In construction!)
 ### Constants
 
 `PI`
