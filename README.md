@@ -14,6 +14,20 @@ $ tsc
 $ node ./dist/transpiler.js '<Code>'
 ```
 
+I personally would wrap the code in quotes to prevent any errors that may occur from the console.
+
+## Example
+
+Input
+```
+ts-node .\src\transpiler.ts 'add(pow(5 floor(multiply(rand() 50))) pow(20 floor(multiply(rand() 25))))'
+```
+
+Output
+```
+((((5)) ** ((Math.floor((((Math.random())) * ((50)))))))) + ((((20)) ** ((Math.floor((((Math.random())) * ((25)))))))) = 5.820766091346741e+23
+```
+
 ## Documentation
 
 ! Numbers can be written with _ between digits to give more readability.
