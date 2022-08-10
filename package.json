@@ -1,0 +1,23 @@
+{
+  "name": "mathtranspiler",
+  "version": "1.0.0",
+  "description": "Transpiler to create mathematical expression and automatically obtain the result via the console",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xander1233/math-transpiler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Xander1233/math-transpiler/issues"
+  },
+  "homepage": "https://github.com/Xander1233/math-transpiler#readme",
+  "devDependencies": {
+    "@types/node": "^18.7.1"
+  }
+}
