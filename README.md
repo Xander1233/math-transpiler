@@ -164,7 +164,7 @@ Max 1 parameter
 
 addition function
 
-add(x, y)
+add(x y)
 
 Max 2 parameter
 
@@ -172,7 +172,7 @@ Max 2 parameter
 
 subtraction function
 
-subtract(x, y)
+subtract(x y)
 
 Max 2 parameter
 
@@ -180,7 +180,7 @@ Max 2 parameter
 
 multiplication function
 
-multiply(x, y)
+multiply(x y)
 
 Max 2 parameter
 
@@ -188,7 +188,7 @@ Max 2 parameter
 
 division function
 
-divide(x, y)
+divide(x y)
 
 Max 2 parameter
 
@@ -196,6 +196,6 @@ Max 2 parameter
 
 power function
 
-pow(x, y)
+pow(x y)
 
 Max 2 parameter
