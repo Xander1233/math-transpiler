@@ -1,4 +1,5 @@
 
+
 interface Token {
 	type: string,
 	value: string
@@ -6,14 +7,15 @@ interface Token {
 
 const Regex = {
 	whitespace: /\s/,
-	numbers: /[0-9_]/,
-	labels: /[a-z0-9_]/i
+	numbers: /[0-9_\.\+\-]/,
+	labels: /[a-z0-9_]/i,
+	fullNumber: /(\+|\-)?(([0-9_]*\.?[0-9_]*)|[0-9_]*)/
 }
 
 interface Label {
 	name: string,
 	maxParams: number,
-	codeGeneration: (...params: any[]) => string
+	codeGeneration: (name: string, ...params: any[]) => string
 };
 
 interface Constant {
@@ -25,63 +27,63 @@ const AllowedLabels: Label[] = [
 	{
 		name: 'acos',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.acos(${params.flat().flat().join(',')})`;
 		}
 	},
 	{
 		name: 'asin',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.asin(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'atan',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.atan(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'sin',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.sin(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'cos',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.cos(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'tan',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.tan(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'cbrt',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.cbrt(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'log',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.log(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'log10',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.log10(${params.flat().join(',')})`;
 		}
 	},
@@ -89,64 +91,73 @@ const AllowedLabels: Label[] = [
 	{
 		name: 'log2',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.log2(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'rand',
 		maxParams: 0,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.random()`;
 		}
 	},
 	{
 		name: 'sqrt',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.sqrt(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'floor',
 		maxParams: 1,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `Math.floor(${params.flat().join(',')})`;
 		}
 	},
 	{
 		name: 'add',
 		maxParams: 2,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `(${params.flat()[0]}) + (${params.flat()[1]})`;
 		}
 	},
 	{
 		name: 'subtract',
 		maxParams: 2,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `(${params.flat()[0]}) - (${params.flat()[1]})`;
 		}
 	},
 	{
 		name: 'multiply',
 		maxParams: 2,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `(${params.flat()[0]}) * (${params.flat()[1]})`;
 		}
 	},
 	{
 		name: 'pow',
 		maxParams: 2,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `(${params.flat()[0]}) ** (${params.flat()[1]})`;
 		}
 	},
 	{
 		name: 'divide',
 		maxParams: 2,
-		codeGeneration: (...params: any[]) => {
+		codeGeneration: (name, ...params: any[]) => {
 			return `(${params.flat()[0]}) / (${params.flat()[1]})`;
+		}
+	},
+	{
+		name: 'func',
+		maxParams: 2,
+		codeGeneration: (name, ...params: any[]) => {
+			return `function ${params.flat()[0]}(x) {
+				return ${params.flat()[1]}
+			};`;
 		}
 	}
 ]
@@ -183,8 +194,33 @@ const Constants: Constant[] = [
 	{
 		name: 'SQRT2',
 		value: 'Math.SQRT2'
+	},
+	{
+		name: 'infinity',
+		value: 'Infinity'
+	},
+	{
+		name: 'phi',
+		value: '(1 + Math.sqrt(5))'
+	},
+	{
+		name: 'tau',
+		value: '2 * Math.PI'
+	},
+	{
+		name: 'x',
+		value: 'x'
 	}
 ];
+
+let createdFunctions: string[] = [];
+const createdFunctionObject: Label = {
+	name: 'createdfunction',
+	maxParams: 1,
+	codeGeneration: (name, ...params) => {
+		return `${name}(${params[0]})`;
+	},
+}
 
 interface TopNode {
 	type: string
@@ -241,6 +277,15 @@ function lexer(input: string) {
 
 			value = [ ...value ].filter((v) => v !== '_').join('');
 
+			if (!Regex.fullNumber.test(value)) {
+				throw new Error('Numbers may only be pos/neg integers or floats');
+			}
+
+			if (value.startsWith('+.') || value.startsWith('-.') || value.startsWith('.')) {
+				const [sign, digits] = value.split('.');
+				value = `${sign}0.${digits}`;
+			}
+
 			tokens.push({
 				type: 'number',
 				value
@@ -260,13 +305,51 @@ function lexer(input: string) {
 
 			if (value.endsWith('_')) throw new SyntaxError('Labels may not end with _');
 
+			if (value === 'func') {
+				let temp = current;
+
+				let functionName = "";
+
+				char = input[++current];
+
+				while (Regex.labels.test(char)) {
+					functionName += char;
+					char = input[++current];
+				}
+
+				createdFunctions.push(functionName);
+
+				tokens.push({
+					type: 'label',
+					value
+				});
+				tokens.push({
+					type: 'parenthesis',
+					value: '('
+				});
+				tokens.push({
+					type: 'createdFunction',
+					value: functionName
+				});
+
+				continue;
+			}
+
+			if (createdFunctions.includes(value)) {
+				tokens.push({
+					type: 'label',
+					value
+				});
+				continue;
+			}
+
 			if (AllowedLabels.filter((v) => v.name === value).length === 0 && Constants.filter((v) => v.name === value).length === 0) throw new SyntaxError('Unknown label/constant ' + value);
 
 			tokens.push({
 				type: 'label',
 				value
 			});
-
+			
 			continue;
 		}
 
@@ -305,8 +388,8 @@ function parser(tokens: Token[]): ProgramNode {
 
 			const filteredLabels = AllowedLabels.filter((v) => v.name === node.name);
 
-			if (filteredLabels.length < 1) throw new SyntaxError('Unknown label ' + node.name);
-			const { maxParams } = filteredLabels[0];
+			if (filteredLabels.length < 1 && !createdFunctions.includes(node.name)) throw new SyntaxError('Unknown label ' + node.name);
+			const { maxParams } = filteredLabels.length < 1 ? createdFunctionObject : filteredLabels[0];
 
 			token = tokens[++current];
 
@@ -331,6 +414,14 @@ function parser(tokens: Token[]): ProgramNode {
 			return {
 				type: 'ConstantLiteral',
 				value: constant.value
+			};
+		}
+
+		if (token.type === 'createdFunction') {
+			current++;
+			return {
+				type: 'CreatedFunctionLiteral',
+				value: token.value
 			};
 		}
 
@@ -376,6 +467,7 @@ function traverser(ast: ProgramNode, visitor: any) {
 
 			case 'NumberLiteral':
 			case 'ConstantLiteral':
+			case 'CreatedFunctionLiteral':
 				break;
 
 			default:
@@ -412,6 +504,14 @@ function transformer(ast) {
 			enter(node, parent) {
 				parent._context.push({
 					type: 'ConstantLiteral',
+					value: node.value
+				});
+			},
+		},
+		CreatedFunctionLiteral: {
+			enter(node, parent) {
+				parent._context.push({
+					type: 'CreatedFunctionLiteral',
 					value: node.value
 				});
 			},
@@ -456,13 +556,14 @@ function codeGenerator(node) {
 		case 'CallExpression':
 
 			const filteredLabels = AllowedLabels.filter((v) => v.name === node.callee.name);
-			if (filteredLabels.length < 1) throw new TypeError('Unknown function ' + node.callee.name);
-			const labelObj = filteredLabels[0];
+			if (filteredLabels.length < 1 && !createdFunctions.includes(node.callee.name)) throw new TypeError('Unknown function ' + node.callee.name);
+			const labelObj = filteredLabels.length < 1 ? createdFunctionObject : filteredLabels[0];
 
-			return labelObj.codeGeneration(node.arguments.map((v: any) => `(${codeGenerator(v)})`));
+			return labelObj.codeGeneration(node.callee.name, node.arguments.map((v: any) => `${codeGenerator(v)}`));
 		
 		case 'NumberLiteral':
 		case 'ConstantLiteral':
+		case 'CreatedFunctionLiteral':
 			return node.value;
 		
 		default: throw new TypeError(node.type);
