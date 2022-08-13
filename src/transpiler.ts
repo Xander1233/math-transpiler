@@ -259,6 +259,15 @@ function lexer(input: string) {
 			continue;
 		}
 
+		if (char === '{' || char === '}') {
+			tokens.push({
+				type: 'block',
+				value: char
+			});
+			current++;
+			continue;
+		}
+
 		if (Regex.whitespace.test(char)) {
 			current++;
 			continue;
